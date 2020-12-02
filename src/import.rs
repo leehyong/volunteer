@@ -6,5 +6,6 @@ pub use tide::utils::After;
 pub use tide::http;
 pub use tide_fluent_routes::fs::ServeFs;
 pub use tide_fluent_routes::prelude::*;
+pub use rbatis;
 
 pub type TideResult = tide::Result;
