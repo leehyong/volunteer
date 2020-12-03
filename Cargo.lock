@@ -877,6 +877,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "hashbrown"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d7afe4a420e3fe79967a00898cc1f4db7c8a49a9333a29f8a4bd76a253d5cd04"
+
+[[package]]
 name = "hermit-abi"
 version = "0.1.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -979,6 +985,16 @@ dependencies = [
  "matches",
  "unicode-bidi",
  "unicode-normalization",
+]
+
+[[package]]
+name = "indexmap"
+version = "1.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "55e2e4c765aa53a0424761bf9f41aa7a6ac1efa87238f59560640e27fca028f2"
+dependencies = [
+ "autocfg 1.0.1",
+ "hashbrown",
 ]
 
 [[package]]
@@ -1202,9 +1218,9 @@ dependencies = [
 
 [[package]]
 name = "num-bigint-dig"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b3d03c330f9f7a2c19e3c0b42698e48141d0809c78cd9b6219f85bd7d7e892aa"
+checksum = "5d51546d704f52ef14b3c962b5776e53d5b862e5790e40a350d366c209bd7f7a"
 dependencies = [
  "autocfg 0.1.7",
  "byteorder",
@@ -1466,9 +1482,9 @@ dependencies = [
 
 [[package]]
 name = "rbatis"
-version = "1.8.38"
+version = "1.8.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5372b8c995779bb23c8ae06faeef23235c8ccc627f1c76a20bf6ff6948ab3ba6"
+checksum = "9c83293faed3743d143801bd2f54c8c820f022bc9a9b70548f07ddf812050550"
 dependencies = [
  "async-std",
  "async-trait",
@@ -1486,9 +1502,9 @@ dependencies = [
 
 [[package]]
 name = "rbatis-core"
-version = "1.8.38"
+version = "1.8.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6792191ac7a0ae8129cb1e9afec50f05f45610f76c89cd614bae381906d0b081"
+checksum = "050060677b6a6a2cf453eaa24b17af7353dc7a18f328262a41a0c645c3cd92ec"
 dependencies = [
  "async-std",
  "chrono",
@@ -1503,9 +1519,9 @@ dependencies = [
 
 [[package]]
 name = "rbatis-macro-driver"
-version = "1.8.38"
+version = "1.8.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "538c956f69eecab2f1c1baa673e0b2254e023688649a32a8cdbe2de33cf4d288"
+checksum = "b7ad36e20e64ea1373b0be0fb7ac617c7d47011b0a9dff59cce5fe3fc5e33add"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1538,9 +1554,9 @@ checksum = "3b181ba2dcf07aaccad5448e8ead58db5b742cf85dfe035e2227f137a539a189"
 
 [[package]]
 name = "ring"
-version = "0.16.18"
+version = "0.16.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70017ed5c555d79ee3538fc63ca09c70ad8f317dcadc1adc2c496b60c22bb24f"
+checksum = "024a1e66fea74c66c66624ee5622a7ff0e4b73a13b4f5c326ddb50c708944226"
 dependencies = [
  "cc",
  "libc",
@@ -1670,10 +1686,11 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.59"
+version = "1.0.60"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dcac07dbffa1c65e7f816ab9eba78eb142c6d44410f4eeba1e26e4f5dfa56b95"
+checksum = "1500e84d27fe482ed1dc791a56eddc2f230046a040fa908c08bda1d9fb615779"
 dependencies = [
+ "indexmap",
  "itoa",
  "ryu",
  "serde",
@@ -2319,9 +2336,9 @@ dependencies = [
 
 [[package]]
 name = "webpki"
-version = "0.21.3"
+version = "0.21.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab146130f5f790d45f82aeeb09e55a256573373ec64409fc19a6fb82fb1032ae"
+checksum = "b8e38c0608262c46d4a56202ebabdeb094cef7e560ca7a226c6bf055188aa4ea"
 dependencies = [
  "ring",
  "untrusted",

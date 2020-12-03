@@ -11,10 +11,10 @@ use crate::import::*;
 
 // Throw the Config struct into a CONFIG lazy_static to avoid multiple processing
 lazy_static! {
-    pub static ref ENV_CONFIG_FILE:String = get_env_config_file();
+    static ref ENV_CONFIG_FILE:String = get_env_config_file();
     pub static ref CONFIG: Config = get_config();
     // pub static ref CACHE: Cache = init_redis_cache();
-    pub static ref RB: rbatis::rbatis::Rbatis = rbatis::rbatis::Rbatis::new();
+    pub static ref DB: rbatis::rbatis::Rbatis = rbatis::rbatis::Rbatis::new();
 }
 
 #[derive(Clone, Deserialize, Debug)]
@@ -91,12 +91,13 @@ pub fn setup_logger() -> Result<(), fern::InitError> {
     Ok(())
 }
 
-pub async fn init_mysql_db(){
+pub async fn init_mysql_db() {
     let mut opt = rbatis::core::db::PoolOptions::new();
     opt.max_connections = CONFIG.max_connections;
     opt.min_connections = CONFIG.min_connections;
-    RB.link_opt(&CONFIG.database_url, &opt).await.unwrap();
+    DB.link_opt(&*CONFIG.database_url, &opt).await.unwrap();
 }
+
 
 // todo  set up redis
 

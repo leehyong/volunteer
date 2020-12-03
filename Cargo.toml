@@ -30,4 +30,3 @@ bigdecimal = "0.2"
 # rbatis, must maintain the same versions (required)
 rbatis =  { version = "1.8" }
 rbatis-macro-driver = { version = "1.8" }
-
