@@ -23,7 +23,6 @@ pub struct Config {
     pub testing: bool,
 
     // auth
-    pub auth_salt: String,
     pub jwt_expiration: i64,
     pub jwt_key: String,
 

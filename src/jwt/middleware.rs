@@ -3,9 +3,10 @@ use base64;
 use chrono::Utc;
 use jsonwebtoken::{Algorithm, decode, DecodingKey, encode, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
-use tide::{Error, http, Middleware, Next, Request, Result as TideResult, StatusCode};
+use crate::import::*;
+use crate::state::AppState;
+use crate::setting::CONFIG;
 
-// use crate::auth::AuthMiddleware;
 
 #[derive(Debug, Serialize, Deserialize, PartialOrd, PartialEq, Ord, Eq, Default)]
 pub struct JwtClaims {
@@ -24,7 +25,7 @@ pub struct JwtClaims {
 impl JwtClaims {
     pub fn new(user_id: u64) -> Self {
         let now_ts = Utc::now().timestamp();
-        let valid_time = 86400 * 300;
+        let valid_time = CONFIG.jwt_expiration as i64;
         Self {
             user_id,
             exp: now_ts + valid_time,
@@ -44,7 +45,7 @@ impl JwtClaims {
     }
 
     fn secret_key() -> &'static str {
-        "leehuayong"
+         &CONFIG.jwt_key
     }
 
     pub fn retrive_self<T: AsRef<str>>(token: T) -> anyhow::Result<Self> {
@@ -65,39 +66,41 @@ impl JwtClaims {
     }
 }
 
-// impl <State: Clone + Send + Sync + 'static> AuthMiddleware<State> for JwtClaims{
-//     fn authorized(&self, ctx: &mut Request<State>) -> bool{
-//         let r = ctx.header("token")
-//             .map(|val| val.as_str())
-//             .map(|token| JwtClaims::retrive_self(token))
-//             .map(|claim| {
-//                 claim.map(|claim| ctx.set_ext(claim))
-//                     .map_err(|_| ())
-//                     .map(|_| Some(()));
-//             });
-//         let mut success = false;
-//         if r.is_none() {
-//             // 没有成功获取到token对应到claim， 则判断是否是登陆时到请求，或者一些不需要授权的接口
-//             let url = ctx.url().path();
-//             if url.starts_with("/api/v1/login") {
-//                 if ctx.method() == http::Method::Post
-//                     || ctx.method() == http::Method::Put {
-//                     success = true;
-//                 }else{
-//                     success = false;
-//                 }
-//             }
-//             // todo 加入一些不需要鉴权的 url
-//         }
-//         success
-//     }
-// }
+#[derive(Default)]
+pub struct JwtMiddleware;
+
+#[async_trait]
+impl<State: Clone + Send + Sync + 'static> Middleware<State> for JwtMiddleware {
+    async fn handle(&self, mut ctx: Request<AppState>, next: Next<'_, AppState>) -> TideResult {
+        let r = ctx.header("token")
+            .map(|val| val.as_str())
+            .map(|token| JwtClaims::retrive_self(token))
+            .map(|claim| {
+                match claim {
+                    Ok(c) =>{
+                        ctx.set_ext(c);
+                        Some(())
+                    }
+                    Err(e) =>{
+                        error!("{}",e.to_string());
+                        None
+                    }
+                }
+            });
+        if r.is_some() {
+            let response = next.run(ctx).await;
+            return Ok(response);
+        }
+        Ok(http::Response::new(http::StatusCode::Unauthorized).into())
+    }
+}
 
 
 #[test]
 fn test_gen_retrive() {
     let claim = JwtClaims::new(123);
     let token = claim.gen_token();
+    dbg!(&token);
     let rd = JwtClaims::retrive_self(token);
     assert_eq!(claim, rd.unwrap())
 }
