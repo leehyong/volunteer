@@ -1,3 +1,5 @@
+pub use std::future::Future;
+pub use std::pin::Pin;
 pub use tide::prelude::*;
 pub use log::{debug, error, info, trace, warn};
 pub use tide::prelude::*;

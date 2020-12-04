@@ -45,7 +45,7 @@ impl JwtClaims {
     }
 
     fn secret_key() -> &'static str {
-         &CONFIG.jwt_key
+        &CONFIG.jwt_key
     }
 
     pub fn retrive_self<T: AsRef<str>>(token: T) -> anyhow::Result<Self> {
@@ -66,23 +66,25 @@ impl JwtClaims {
     }
 }
 
-#[derive(Default)]
-pub struct JwtMiddleware;
 
-#[async_trait]
-impl<State: Clone + Send + Sync + 'static> Middleware<State> for JwtMiddleware {
-    async fn handle(&self, mut ctx: Request<State>, next: Next<'_, State>) -> TideResult {
+pub fn jwt_auth_middleware<'a, State>(
+    mut ctx: Request<State>,
+    next: Next<'a, State>,
+) -> Pin<Box<dyn Future<Output=TideResult> + Send +'a>>
+where State:Clone + Send + Sync + 'static{
+    info!("test");
+    Box::pin(async move {
         let r = ctx.header("token")
             .map(|val| val.as_str())
             .map(|token| JwtClaims::retrive_self(token))
             .map(|claim| {
                 match claim {
-                    Ok(c) =>{
+                    Ok(c) => {
                         ctx.set_ext(c);
                         Some(())
                     }
-                    Err(e) =>{
-                        error!("{}",e.to_string());
+                    Err(e) => {
+                        error!("{}", e.to_string());
                         None
                     }
                 }
@@ -92,8 +94,9 @@ impl<State: Clone + Send + Sync + 'static> Middleware<State> for JwtMiddleware {
             return Ok(response);
         }
         Ok(http::Response::new(http::StatusCode::Unauthorized).into())
-    }
+    })
 }
+
 
 
 #[test]
