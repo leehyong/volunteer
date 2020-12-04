@@ -71,7 +71,7 @@ pub struct JwtMiddleware;
 
 #[async_trait]
 impl<State: Clone + Send + Sync + 'static> Middleware<State> for JwtMiddleware {
-    async fn handle(&self, mut ctx: Request<AppState>, next: Next<'_, AppState>) -> TideResult {
+    async fn handle(&self, mut ctx: Request<State>, next: Next<'_, State>) -> TideResult {
         let r = ctx.header("token")
             .map(|val| val.as_str())
             .map(|token| JwtClaims::retrive_self(token))

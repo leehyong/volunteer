@@ -19,7 +19,7 @@ pub fn api_route(app: &mut Server<AppState>){
                                 route.get(ActivityApi::detail)
                             })
                     })
-                    .with(JwtMiddleware, |route|{
+                    .with(JwtMiddleware::default(), |route|{
                         route.at("/apply2", |route|{
                             route.get( |_|  async move {Ok("hello")})
                         })
