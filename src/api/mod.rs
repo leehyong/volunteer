@@ -20,11 +20,13 @@ pub fn api_route(app: &mut Server<AppState>){
                             })
                     });
 
-                    route.with(jwt_auth_middleware, |route|{
-                        route.at("/apply2", |route|{
-                            route.get( |_|  async move {Ok("hello")})
-                        })
-                    })
+                    // route.with(jwt_auth_middleware, |route|{
+                    //     route.at("/apply2", |route|{
+                    //         route.get( |_|  async move {Ok("hello")})
+                    //     })
+                    // })
+                route
             })
     );
+    app.with(jwt_auth_middleware);
 }

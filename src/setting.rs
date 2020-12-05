@@ -1,11 +1,8 @@
 use std::env;
-
+use lazy_static::lazy_static;
 use dotenv;
 use envy;
-// use fern;
-use lazy_static::lazy_static;
-use serde::Deserialize;
-
+use serde::{Deserialize, Serialize};
 use crate::import::*;
 
 // Throw the Config struct into a CONFIG lazy_static to avoid multiple processing
@@ -22,9 +19,9 @@ pub struct Config {
     pub testing: bool,
 
     // auth
+    // expiration days
     pub jwt_expiration: i64,
     pub jwt_key: String,
-
     // db
     pub database_url: String,
     pub min_connections: u32,
@@ -97,20 +94,3 @@ pub async fn init_mysql_db() {
 
 
 // todo  set up redis
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_gets_a_config() {
-        let config = get_config();
-        assert_ne!(config.server, "".to_string());
-    }
-
-    #[test]
-    fn it_gets_a_config_from_the_lazy_static() {
-        let config = &CONFIG;
-        assert_ne!(config.server, "".to_string());
-    }
-}
