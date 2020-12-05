@@ -141,9 +141,9 @@ dependencies = [
 
 [[package]]
 name = "async-h1"
-version = "2.1.4"
+version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3fd9a5f3dbb5065856974e08c2ac24e6f81da6e39d2328de1c03a9a2b34ffb01"
+checksum = "03770183d8d75793cf3752238b86dc5ca35304cc762d3a5848f7b00bcaf84c9d"
 dependencies = [
  "async-std",
  "byte-pool",
@@ -152,7 +152,7 @@ dependencies = [
  "httparse",
  "lazy_static",
  "log",
- "pin-project-lite",
+ "pin-project",
 ]
 
 [[package]]
@@ -343,9 +343,9 @@ dependencies = [
 
 [[package]]
 name = "bit-vec"
-version = "0.6.2"
+version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f0dc55f2d8a1a85650ac47858bb001b4c0dd73d79e3c455a842925e68d29cd3"
+checksum = "349f9b6a179ed607305526ca489b34ad0a41aed5f7980fa90eb03160b69598fb"
 
 [[package]]
 name = "bitflags"
@@ -445,9 +445,9 @@ checksum = "631ae5198c9be5e753e5cc215e1bd73c2b466a3565173db433f52bb9d3e66dba"
 
 [[package]]
 name = "cc"
-version = "1.0.65"
+version = "1.0.66"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "95752358c8f7552394baf48cd82695b345628ad3f170d607de3ca03b8dacca15"
+checksum = "4c0496836a84f8d0495758516b8621a622beb77c0fed418570e50764093ced48"
 
 [[package]]
 name = "cfg-if"
@@ -482,15 +482,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "12f8e7987cbd042a63249497f41aed09f8e65add917ea6566effbc56578d6801"
 dependencies = [
  "generic-array",
-]
-
-[[package]]
-name = "cloudabi"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4344512281c643ae7638bbabc3af17a11307803ec8f0fcad9fae512a8bf36467"
-dependencies = [
- "bitflags",
 ]
 
 [[package]]
@@ -714,15 +705,6 @@ dependencies = [
  "serde_json",
  "wasm-bindgen",
  "web-sys",
-]
-
-[[package]]
-name = "fern"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c9a4820f0ccc8a7afd67c39a0f1a0f4b07ca1725164271a64939d7aeb9af065"
-dependencies = [
- "log",
 ]
 
 [[package]]
@@ -950,9 +932,9 @@ dependencies = [
 
 [[package]]
 name = "http-types"
-version = "2.8.0"
+version = "2.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6f316f6a06306570e899238d3b85375f350cfceda60ec47807c4164d6e169e58"
+checksum = "f2ab8d0085fb82859c9adf050bd53992297ecdd03a665a230dfa50c8c964bf3d"
 dependencies = [
  "anyhow",
  "async-channel",
@@ -1306,12 +1288,11 @@ dependencies = [
 
 [[package]]
 name = "parking_lot_core"
-version = "0.8.0"
+version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c361aa727dd08437f2f1447be8b59a33b0edd15e0fcee698f935613d9efbca9b"
+checksum = "d7c6d9b8427445284a09c55be860a15855ab580a417ccad9da88f5a06787ced0"
 dependencies = [
- "cfg-if 0.1.10",
- "cloudabi",
+ "cfg-if 1.0.0",
  "instant",
  "libc",
  "redox_syscall",
@@ -1482,9 +1463,9 @@ dependencies = [
 
 [[package]]
 name = "rbatis"
-version = "1.8.40"
+version = "1.8.41"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c83293faed3743d143801bd2f54c8c820f022bc9a9b70548f07ddf812050550"
+checksum = "36911deffb4dbd2788cf387c340110bd39c8aa417f020c38029878a51950e0b9"
 dependencies = [
  "async-std",
  "async-trait",
@@ -1502,9 +1483,9 @@ dependencies = [
 
 [[package]]
 name = "rbatis-core"
-version = "1.8.40"
+version = "1.8.41"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "050060677b6a6a2cf453eaa24b17af7353dc7a18f328262a41a0c645c3cd92ec"
+checksum = "be76b36e169e3f8d9ced8d1137d0f911d17c70944769175d88bf679e12a784e1"
 dependencies = [
  "async-std",
  "chrono",
@@ -1519,9 +1500,9 @@ dependencies = [
 
 [[package]]
 name = "rbatis-macro-driver"
-version = "1.8.40"
+version = "1.8.41"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b7ad36e20e64ea1373b0be0fb7ac617c7d47011b0a9dff59cce5fe3fc5e33add"
+checksum = "ace23888f32e4113102b6d79ada43413cc1066d87abd52f350d63d92ccff590d"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1783,9 +1764,9 @@ checksum = "c111b5bd5695e56cffe5129854aa230b39c93a305372fdbb2668ca2394eea9f8"
 
 [[package]]
 name = "smallvec"
-version = "1.5.0"
+version = "1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7acad6f34eb9e8a259d3283d1e8c1d34d7415943d4895f65cc73813c7396fc85"
+checksum = "ae524f056d7d770e174287294f562e95044c68e88dec909a00d2094805db9d75"
 
 [[package]]
 name = "spin"
@@ -2046,17 +2027,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tide-fluent-routes"
-version = "0.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "168f6ab871c6f61b9a5a18c482a67383f9fd5abb7c160b086f000c616ddee650"
-dependencies = [
- "async-std",
- "log",
- "tide",
-]
-
-[[package]]
 name = "time"
 version = "0.1.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2226,17 +2196,14 @@ dependencies = [
  "chrono",
  "dotenv",
  "envy",
- "fern",
  "jsonwebtoken",
  "lazy_static",
- "log",
  "rbatis",
  "rbatis-macro-driver",
  "serde",
  "serde_json",
  "thiserror",
  "tide",
- "tide-fluent-routes",
 ]
 
 [[package]]

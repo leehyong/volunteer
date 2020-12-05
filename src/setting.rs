@@ -1,9 +1,9 @@
-use std::env;
-use lazy_static::lazy_static;
+use crate::import::*;
 use dotenv;
 use envy;
+use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
-use crate::import::*;
+use std::env;
 
 // Throw the Config struct into a CONFIG lazy_static to avoid multiple processing
 lazy_static! {
@@ -86,11 +86,10 @@ fn get_config() -> Config {
 // }
 
 pub async fn init_mysql_db() {
-    let mut opt = rbatis::core::db::PoolOptions::new();
+    let mut opt = rbatis::core::db::DBPoolOptions::new();
     opt.max_connections = CONFIG.max_connections;
     opt.min_connections = CONFIG.min_connections;
     DB.link_opt(&*CONFIG.database_url, &opt).await.unwrap();
 }
-
 
 // todo  set up redis

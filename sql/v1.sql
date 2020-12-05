@@ -1,3 +1,5 @@
+create database if not exists volunteer ;
+use volunteer;
 CREATE TABLE if not exists `user` (
   `id` int NOT NULL AUTO_INCREMENT,
   `create_time` TIMESTAMP NOT NULL default current_timestamp,
