@@ -2,8 +2,8 @@ create database if not exists volunteer ;
 use volunteer;
 CREATE TABLE if not exists `user` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `create_time` TIMESTAMP NOT NULL default current_timestamp,
-  `update_time` TIMESTAMP NOT NULL default current_timestamp,
+  `create_time` DATETIME NOT NULL default current_timestamp,
+  `update_time` DATETIME NOT NULL default current_timestamp,
   `name` varchar(64) NOT NULL comment '名字',
   `parent_id` int default NULL comment '父账户id',
   `ancestor_id` int default NULL comment '祖先id',
@@ -21,26 +21,26 @@ CREATE TABLE if not exists `user` (
 
 CREATE TABLE if not exists  `third_party_user` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `create_time` TIMESTAMP NOT NULL default current_timestamp,
-  `update_time` TIMESTAMP NOT NULL default current_timestamp,
+  `create_time` DATETIME NOT NULL default current_timestamp,
+  `update_time` DATETIME NOT NULL default current_timestamp,
   `user_id` int NOT NULL comment '账户id',
   `account` varchar(64) NOT NULL comment '账户',
   `token` varchar(256) NOT NULL comment '第三方token',
-  `type` varchar(16) NOT NULL comment '第三方登陆类型：wechat，微信；alipay，支付宝；taobao，淘宝；',
+  `source` varchar(16) NOT NULL comment '第三方登陆类型：wechat，微信；alipay，支付宝；taobao，淘宝；',
   `avatar` varchar(2048) NOT NULL default '' comment '第三方用户的头像链接',
   `is_delete` tinyint not null default 0,
   PRIMARY KEY (`id`),
-  KEY `ix_account_type_is_delete` (`account`, `type`, `is_delete`),
+  KEY `ix_account_source_is_delete` (`account`, `source`, `is_delete`),
   CONSTRAINT `third_party_user_fk1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='第三方用户登陆表';
 
 
 CREATE TABLE if not exists `activity` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `create_time` TIMESTAMP NOT NULL default current_timestamp,
-  `update_time` TIMESTAMP NOT NULL default current_timestamp,
-  `start_time`  TIMESTAMP NOT NULL comment '活动开始时间',
-  `end_time`  TIMESTAMP NOT NULL comment '活动结束时间',
+  `create_time` DATETIME NOT NULL default current_timestamp,
+  `update_time` DATETIME NOT NULL default current_timestamp,
+  `start_time`  DATETIME NOT NULL comment '活动开始时间',
+  `end_time`  DATETIME NOT NULL comment '活动结束时间',
   `creator_id` int NOT NULL comment '创建者id',
   `last_editor_id` int NOT NULL comment '上次编辑者id',
   `subject` varchar(512) NOT NULL comment '主题',
@@ -56,8 +56,8 @@ CREATE TABLE if not exists `activity` (
 
 CREATE TABLE if not exists  `apply` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `create_time` TIMESTAMP NOT NULL default current_timestamp,
-  `update_time` TIMESTAMP NOT NULL default current_timestamp,
+  `create_time` DATETIME NOT NULL default current_timestamp,
+  `update_time` DATETIME NOT NULL default current_timestamp,
   `user_id` int NOT NULL comment '创建者id',
   `activity_id` int NOT NULL comment '创建者id',
   `is_delete` tinyint not NULL DEFAULT 0 comment '是否删除',
