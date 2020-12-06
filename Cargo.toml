@@ -16,7 +16,7 @@ serde = "1.0"
 serde_json = "1.0"
 lazy_static = "1.4.0"
 # Date time (required)
-chrono = { version = "0.4", features = ["serde"] }
+chrono = { version = "0.4", features = ["serde", "clock", "std", "alloc","unstable-locales"] }
 # logging (required)
 #log = "0.4"
 #fern = "0.6.0"
@@ -28,5 +28,7 @@ thiserror = ">=1.0.22"
 bigdecimal = "0.2"
 
 # rbatis, must maintain the same versions (required)
-rbatis =  { version = "1.8" }
+rbatis = { version = "1.8" }
 rbatis-macro-driver = { version = "1.8" }
+validators-derive = { version = "0.22" }
+validators = { version = "0.22" }

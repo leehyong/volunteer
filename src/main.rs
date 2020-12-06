@@ -1,3 +1,5 @@
+#[macro_use]
+extern crate rbatis_macro_driver;
 use async_std;
 
 use api::api_route;
@@ -11,6 +13,9 @@ mod import;
 mod jwt;
 mod setting;
 mod state;
+mod model;
+mod util;
+
 use base64::encode;
 
 #[async_std::main]

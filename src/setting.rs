@@ -10,7 +10,7 @@ lazy_static! {
     static ref ENV_CONFIG_FILE:String = get_env_config_file();
     pub static ref CONFIG: Config = get_config();
     // pub static ref CACHE: Cache = init_redis_cache();
-    pub static ref DB: rbatis::rbatis::Rbatis = rbatis::rbatis::Rbatis::new();
+    pub static ref DB: Rbatis = Rbatis::new();
 }
 
 #[derive(Clone, Deserialize, Debug)]
@@ -86,7 +86,7 @@ fn get_config() -> Config {
 // }
 
 pub async fn init_mysql_db() {
-    let mut opt = rbatis::core::db::DBPoolOptions::new();
+    let mut opt = DBPoolOptions::new();
     opt.max_connections = CONFIG.max_connections;
     opt.min_connections = CONFIG.min_connections;
     DB.link_opt(&*CONFIG.database_url, &opt).await.unwrap();

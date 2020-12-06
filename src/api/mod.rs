@@ -15,21 +15,20 @@ pub fn api_route(app: &mut Server<AppState>) {
 fn api_auth_route(app: &mut Server<AppState>) {
     // 这里加入需要鉴权和认证的的URL
     app.at(API_PATH)
-        .with(jwt_auth_middleware);
-    // .at("activity")
-    // .get(ActivityApi::list)
-    // .post(ActivityApi::new)
-    // .at(":id")
-    // .get(ActivityApi::detail);
+        // 自动在路径前面加上 '/'
+        .with(jwt_auth_middleware)
+        .at("apply")
+        .post(|_| async { Ok("Hello, world!") });
 }
 
 
 fn api_no_auth_route(app: &mut Server<AppState>) {
     // 这里加入不需要鉴权和认证的的URL
     app.at(API_PATH)
-        // 自动在路径前面加上 '/'
-        .at("apply")
-        .post(|_| async { Ok("Hello, world!") });
+        .at("activity")
+        .get(ActivityApi::list)
+        .at(":id")
+        .get(ActivityApi::detail);
 }
 
 fn admin_auth_route(app: &mut Server<AppState>) {
@@ -39,4 +38,7 @@ fn admin_auth_route(app: &mut Server<AppState>) {
         // 自动在路径前面加上 '/'
         .at("users")
         .get(|_| async { Ok("all users") });
+    app.at(ADMIN_PATH)
+        .at("activity")
+        .post(ActivityApi::new);
 }
