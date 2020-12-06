@@ -44,12 +44,12 @@ CREATE TABLE if not exists `activity` (
   `creator_id` int NOT NULL comment '创建者id',
   `last_editor_id` int NOT NULL comment '上次编辑者id',
   `subject` varchar(512) NOT NULL comment '主题',
-  `type`  char(16) NOT NULL comment '类型:gym, 体育；meeting， 会议；',
+  `activity_type`  char(16) NOT NULL comment '类型:gym, 体育；meeting， 会议；',
   `apply_url`  varchar(2048) NOT NULL comment '报名链接',
-  `text`  text NOT NULL comment '内容',
+  `content`  text NOT NULL comment '内容',
   `is_delete` tinyint not NULL default 0 comment '是否删除',
   PRIMARY KEY (`id`),
-  KEY `ix_start_time_end_time_type` (`start_time`, `end_time`, `type`),
+  KEY `ix_start_time_end_time_activity_type` (`start_time`, `end_time`, `activity_type`),
   CONSTRAINT `avtivity_fk1` FOREIGN KEY (`last_editor_id`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='志愿者活动表';
 
