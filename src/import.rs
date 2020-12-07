@@ -16,7 +16,10 @@ pub use tide::{log as TideLog,
                Next, Request, Response};
 pub use chrono::prelude::*;
 pub use tide::prelude::*;
+pub use regex::Regex;
 pub use crate::setting::DB;
+// A trait that the Validate derive will impl
+pub use validator::{Validate, ValidationError};
 pub type TideResult = tide::Result;
 
 pub const API_PATH: &'static str = "/api/v1";
@@ -24,3 +27,5 @@ pub const ADMIN_PATH: &'static str = "/admin/v1";
 
 // 注意前面的 空格符不能去掉， 不然会报sql语法错误
 pub const LIMIT_NUM_SQL: &'static str = " limit 50";
+
+pub const DATETIME_FMT:&'static str = "%Y-%m-%d %H:%M:%S";

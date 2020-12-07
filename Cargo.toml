@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 dotenv = "0.15.0"
 envy = "0.4.1"
+regex = "1.4"
 tide = "0.15.0"
 async-std = { version = "1.6.0", features = ["attributes"] }
 async-trait = "0.1"
@@ -30,5 +31,4 @@ bigdecimal = "0.2"
 # rbatis, must maintain the same versions (required)
 rbatis = { version = "1.8" }
 rbatis-macro-driver = { version = "1.8" }
-validators-derive = { version = "0.22" }
-validators = { version = "0.22" }
+validator = { version = "0.12", features = ["derive"] }
