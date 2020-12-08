@@ -13,6 +13,7 @@ pub struct ActivityApi;
 impl ActivityApi {
     pub async fn list(req: Request<AppState>) -> TideResult {
         let params = req.query::<ActivityReq>()?;
+        // info!("params, {:?}", &params);
         match params.validate() {
             Ok(_) => {
                 ResponseUtil::ok(Self::select(

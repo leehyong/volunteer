@@ -13,32 +13,52 @@ pub fn api_route(app: &mut Server<AppState>) {
 }
 
 fn api_auth_route(app: &mut Server<AppState>) {
+    let app_state = app.state().clone();
     // 这里加入需要鉴权和认证的的URL
     app.at(API_PATH)
         // 自动在路径前面加上 '/'
         .with(jwt_auth_middleware)
-        .at("apply")
-        .post(|_| async { Ok("Hello, world!") });
+        .nest(
+            {
+                let mut api = tide::with_state(app_state);
+                api.at("apply/*")
+                    .post(|_| async { Ok("Hello, world!") });
+                api
+            }
+        );
 }
 
 
 fn api_no_auth_route(app: &mut Server<AppState>) {
     // 这里加入不需要鉴权和认证的的URL
+    let app_state = app.state().clone();
     app.at(API_PATH)
-        .at("activity")
-        .get(ActivityApi::list)
-        .at(":id")
-        .get(ActivityApi::detail);
+        .nest({
+            let mut _api = tide::with_state(app_state);
+            _api
+                .at("activity")
+                .get(ActivityApi::list);
+            _api
+                .at("activity/:id")
+                .get(ActivityApi::detail);
+            _api
+        });
 }
 
 fn admin_auth_route(app: &mut Server<AppState>) {
     // 这里加入管理后台需要鉴权和认证的的URL
+    let app_state = app.state().clone();
     app.at(ADMIN_PATH)
         .with(jwt_auth_middleware)
-        // 自动在路径前面加上 '/'
-        .at("users")
-        .get(|_| async { Ok("all users") });
-    app.at(ADMIN_PATH)
-        .at("activity")
-        .post(ActivityApi::new);
+        .nest({
+            let mut admin = tide::with_state(app_state);
+            admin
+                .at("users")
+                .get(|_| async { Ok("all users") });
+            admin
+                .at("activity")
+                .post(ActivityApi::new);
+            admin
+        });
+    // 自动在路径前面加上 '/'
 }
