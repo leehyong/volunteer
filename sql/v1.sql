@@ -68,6 +68,11 @@ CREATE TABLE if not exists  `apply` (
 
 
 -- test data
+
+insert into user(name, mobile, lang, country_code, role, sex)
+values ('leeson', '123456777', 'zn_Hans_CN', '86', 'super','男'),
+       ('leehuayong', '2323', 'zn_Hans_CN', '86', 'admin','男'),
+       ('xiaomei', '5544123', 'zn_Hans_CN', '86', 'admin','女');
 insert into activity(creator_id, last_editor_id, subject, activity_type, apply_url, content, start_time, end_time)
 values (1, 1, '金山演唱会', 'concert', 'https://1234.a.b/apply1', '来了来啦， 十大；做过路过不要错过', '20201201', '20210221'),
          (1, 1, '华山论剑大会', 'kongfu', 'https://1234.a.b/apply2', '来了来啦， 机会来了；做过路过不要错过', '20201201', '20210221'),
