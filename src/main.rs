@@ -19,7 +19,6 @@ use base64::encode;
 
 #[async_std::main]
 async fn main() -> tide::Result<()> {
-    // setup_logger().unwrap();
     TideLog::with_level(TideLog::LevelFilter::Debug);
     init_mysql_db().await;
     let mut app = tide::with_state(AppState::default());

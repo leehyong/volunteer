@@ -25,7 +25,7 @@ impl ActivityApi {
 
     async fn select(req: &ActivityReq) -> Vec<Activity> {
         let mut query = DB.new_wrapper();
-        let mut query = query
+        query
             .eq("is_delete", 0)
             .lt("end_time", req.end_time);
         if req.start_time.is_some() {
@@ -57,9 +57,9 @@ impl ActivityApi {
         }
     }
 
-    async fn info(id: i32) -> Option<Activity> {
+    async fn info(id: u32) -> Option<Activity> {
         let mut query = DB.new_wrapper();
-        let mut query = query
+        query
             .eq("id", id)
             .eq("is_delete", 0);
         match query.check() {
@@ -82,8 +82,18 @@ impl ActivityApi {
         }
     }
 
-    pub async fn detail(mut req: Request<AppState>) -> TideResult {
-        ResponseUtil::ok(Self::info(1).await)
+    pub async fn detail(req: Request<AppState>) -> TideResult {
+        let id_req = req.param("id")?;
+        match id_req.parse::<u32>() {
+            Ok(n) => {
+                ResponseUtil::ok(Self::info(n).await)
+            }
+            Err(e) => {
+                let s = format!("{}: {}", e.to_string(), id_req);
+                error!("{}", &s);
+                ResponseUtil::error(s)
+            }
+        }
     }
 
     pub async fn new(mut req: Request<AppState>) -> TideResult {
