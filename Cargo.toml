@@ -10,7 +10,8 @@ edition = "2018"
 dotenv = "0.15.0"
 envy = "0.4.1"
 regex = "1.4"
-tide = "0.15.0"
+#tide = "0.15.0"
+tide = { path = "../tide",  version = "0.15.0"}
 async-std = { version = "1.6.0", features = ["attributes"] }
 async-trait = "0.1"
 serde = "1.0"
@@ -29,6 +30,6 @@ thiserror = ">=1.0.22"
 bigdecimal = "0.2"
 
 # rbatis, must maintain the same versions (required)
-rbatis = { version = "1.8" }
-rbatis-macro-driver = { version = "1.8" }
+rbatis = { version = "1.8",default-features=false, features=["async-io", "async-io-mysql"] }
+rbatis-macro-driver = { version = "1.8", features=["no_print"]}
 validator = { version = "0.12", features = ["derive"] }

@@ -2,7 +2,7 @@ use crate::import::*;
 use crate::AppState;
 use crate::model::Activity;
 use crate::util::ResponseUtil;
-use crate::util::{ActivityReq, Subject, ActivityType};
+use crate::util::{ActivityReq};
 use validator::Validate;
 use rbatis::crud::CRUD;
 use rbatis::core::value::DateTimeNow;
@@ -12,16 +12,10 @@ pub struct ActivityApi;
 
 impl ActivityApi {
     pub async fn list(req: Request<AppState>) -> TideResult {
-        let params = req.query::<ActivityReq>()?;
-        // info!("params, {:?}", &params);
-        match params.validate() {
+        let req = req.query::<ActivityReq>()?;
+        match req.validate() {
             Ok(_) => {
-                ResponseUtil::ok(Self::select(
-                    &params.end_time,
-                    params.start_time.as_ref(),
-                    params.activity_types,
-                    params.subjects,
-                ).await)
+                ResponseUtil::ok(Self::select(&req).await)
             }
             Err(e) => {
                 ResponseUtil::error(e.to_string())
@@ -29,23 +23,19 @@ impl ActivityApi {
         }
     }
 
-    async fn select(end: &NaiveDateTime, start: Option<&NaiveDateTime>, types: Option<Vec<ActivityType>>, subjects: Option<Vec<Subject>>) -> Vec<Activity> {
+    async fn select(req: &ActivityReq) -> Vec<Activity> {
         let mut query = DB.new_wrapper();
         let mut query = query
             .eq("is_delete", 0)
-            .gt("end_time", *end);
-        if start.is_some() {
-            query.gt("start_time", *start.unwrap());
+            .lt("end_time", req.end_time);
+        if req.start_time.is_some() {
+            query.gt("start_time", req.start_time.as_ref().unwrap());
         }
-        if types.is_some() {
-            let types = types.unwrap();
-            let types = types.iter().map(|d| d.at.as_str()).collect::<Vec<&str>>();
-            query.r#in("activity_type", &types);
+        if req.activity_type.is_some() {
+            query.eq("activity_type", req.activity_type.as_ref().unwrap().as_str());
         }
-        if subjects.is_some() {
-            let  subjects = subjects.unwrap();
-            let subjects = subjects.iter().map(|d| d.sub.as_str()).collect::<Vec<&str>>();
-            query.r#in("subject", &subjects);
+        if req.subject.is_some() {
+            query.eq("subject", req.subject.as_ref().unwrap().as_str());
         }
         match query.push_sql(LIMIT_NUM_SQL).check() {
             Ok(w) => {

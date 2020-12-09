@@ -15,7 +15,6 @@ mod setting;
 mod state;
 mod model;
 mod util;
-
 use base64::encode;
 
 #[async_std::main]

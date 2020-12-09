@@ -7,30 +7,17 @@ lazy_static! {
     static ref DATETIME_FMT_REG: Regex = Regex::new(r"\d{4}-?\d{2}-?\d{2}\s?(\d{2}:?\d{2}:\d{2})?").unwrap();
 }
 
-
-#[derive(Debug, Validate, Deserialize)]
-pub struct ActivityType {
-    #[validate(regex(path = "ACTIVITY_TYPES"))]
-    pub at: String
-}
-
-#[derive(Debug, Validate, Deserialize)]
-pub struct Subject {
-    #[validate(length(min = 1, max = 512))]
-    pub sub: String
-}
-
 #[derive(Debug, Validate, Deserialize)]
 pub struct ActivityReq {
     // #[validate(regex(path = "DATETIME_FMT_REG"))]
-    pub end_time: NaiveDateTime,
+    pub end_time: NaiveDate,
 
     // #[validate(regex(path = "DATETIME_FMT_REG"))]
-    pub start_time: Option<NaiveDateTime>,
+    pub start_time: Option<NaiveDate>,
 
-    #[validate]
-    pub activity_types: Option<Vec<ActivityType>>,
+    #[validate(regex(path = "ACTIVITY_TYPES"))]
+    pub activity_type: Option<String>,
 
-    #[validate]
-    pub subjects: Option<Vec<Subject>>,
+    #[validate(length(min = 1, max = 512))]
+    pub subject: Option<String>,
 }
