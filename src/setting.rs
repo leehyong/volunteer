@@ -45,7 +45,7 @@ pub struct Config {
 }
 
 fn get_env_config_file() -> String {
-    if(cfg!(test)){
+    if (cfg!(test)) {
         let r = envmnt::get_or("CONF", "config/local.env").to_string();
         dbg!(&r);
         return r;
@@ -65,34 +65,6 @@ fn get_config() -> Config {
         Err(error) => panic!("Configuration Error: {:?}", error),
     }
 }
-
-//
-// pub fn setup_logger() -> Result<(), fern::InitError> {
-//     //! With fern, we can:
-// // Configure logger at runtime
-//     fern::Dispatch::new()
-//         // Perform allocation-free log formatting
-//         .format(|out, message, record| {
-//             out.finish(format_args!(
-//                 "{}[{}][{}] {}",
-//                 chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"),
-//                 record.target(),
-//                 record.level(),
-//                 message
-//             ))
-//         })
-//         // Add blanket level filter -
-//         .level(log::LevelFilter::Debug)
-//         // - and per-module overrides
-//         .level_for("hyper", log::LevelFilter::Info)
-//         // Output to stdout, files, and other Dispatch configurations
-//         .chain(fern::log_file("output.log")?)
-//         // Apply globally
-//         .apply()?;
-//
-//     // and log using log crate macros!
-//     Ok(())
-// }
 
 pub async fn init_mysql_db() {
     let mut opt = DBPoolOptions::new();
