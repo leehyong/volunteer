@@ -28,6 +28,8 @@ anyhow = ">=1.0.34"
 thiserror = ">=1.0.22"
 # BigDecimal (optional)
 bigdecimal = "0.2"
+#envmnt = {version="0.8.4", optional=true}
+envmnt = {version="0.8.4"}
 
 # rbatis, must maintain the same versions (required)
 rbatis = { version = "1.8",default-features=false, features=["async-io", "async-io-mysql"] }

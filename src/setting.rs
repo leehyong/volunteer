@@ -1,9 +1,13 @@
-use crate::import::*;
+use std::env;
+
 use dotenv;
+#[cfg(test)]
+use envmnt;
 use envy;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
-use std::env;
+
+use crate::import::*;
 
 // Throw the Config struct into a CONFIG lazy_static to avoid multiple processing
 lazy_static! {
@@ -41,6 +45,11 @@ pub struct Config {
 }
 
 fn get_env_config_file() -> String {
+    if(cfg!(test)){
+        let r = envmnt::get_or("CONF", "config/local.env").to_string();
+        dbg!(&r);
+        return r;
+    }
     let mut args = env::args().collect::<Vec<String>>();
     if args.len() != 2 {
         panic!("error argument! usage {} [env]", &args[0])
@@ -93,3 +102,31 @@ pub async fn init_mysql_db() {
 }
 
 // todo  set up redis
+
+#[async_std::test]
+async fn test_config() {
+    dbg!(&CONFIG.server);
+    dbg!(&CONFIG.env);
+    assert!(CONFIG.server.len() > 0);
+    assert!(CONFIG.env.len() > 0);
+    assert!(CONFIG.jwt_key.len() > 0);
+}
+
+#[async_std::test]
+async fn test_mysql_db() {
+    init_mysql_db().await;
+    let py_sql = r#"show databases;"#;
+    DB.
+        py_exec(
+            "",
+            py_sql,
+            &"".to_owned(),
+        ).await.unwrap();
+    let py_sql = r#"show tables;"#;
+    DB.
+        py_exec(
+            "",
+            py_sql,
+            &"".to_owned(),
+        ).await.unwrap();
+}
