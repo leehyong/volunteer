@@ -28,9 +28,9 @@ impl ActivityApi {
         let mut query = DB.new_wrapper();
         query
             .eq("is_delete", 0)
-            .lt("end_time", req.end_time);
+            .lt("end_time", req.end_date);
         if req.start_time.is_some() {
-            query.gt("start_time", req.start_time.as_ref().unwrap());
+            query.gt("start_time", req.start_date.as_ref().unwrap());
         }
         if req.activity_type.is_some() {
             query.eq("activity_type", req.activity_type.as_ref().unwrap().as_str());
@@ -85,5 +85,7 @@ impl ActivityApi {
 
     pub async fn new(req: Request<AppState>) -> TideResult {
         Ok("new".into())
+
+
     }
 }

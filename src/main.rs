@@ -14,6 +14,7 @@ mod setting;
 mod state;
 mod model;
 mod util;
+mod beijing;
 
 #[async_std::main]
 async fn main() -> tide::Result<()> {

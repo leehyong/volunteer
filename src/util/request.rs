@@ -10,6 +10,21 @@ lazy_static! {
 #[derive(Debug, Validate, Deserialize)]
 pub struct ActivityReq {
     // #[validate(regex(path = "DATETIME_FMT_REG"))]
+    pub end_date: NaiveDate,
+
+    // #[validate(regex(path = "DATETIME_FMT_REG"))]
+    pub start_date: Option<NaiveDate>,
+
+    #[validate(regex(path = "ACTIVITY_TYPES"))]
+    pub activity_type: Option<String>,
+
+    #[validate(length(min = 1, max = 512))]
+    pub subject: Option<String>,
+}
+
+#[derive(Debug, Validate, Deserialize)]
+pub struct NewActivityReq {
+    // #[validate(regex(path = "DATETIME_FMT_REG"))]
     pub end_time: NaiveDate,
 
     // #[validate(regex(path = "DATETIME_FMT_REG"))]

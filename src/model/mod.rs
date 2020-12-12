@@ -1,4 +1,5 @@
 use crate::import::*;
+use crate::util::datetime_util;
 
 #[derive(CRUDEnable, Serialize, Deserialize, Clone, Debug)]
 pub struct User {
@@ -11,10 +12,14 @@ pub struct User {
     pub mobile: String,
     pub lang: String,
     pub country_code: String,
+    #[serde(skip_serializing)]
     pub role: String,
     pub sex: char,
+    #[serde(skip_serializing)]
     pub is_delete: u8,
+    #[serde(serialize_with = "datetime_util::serialize_datetime")]
     pub create_time: NaiveDateTime,
+    #[serde(serialize_with = "datetime_util::serialize_datetime")]
     pub update_time: NaiveDateTime,
 }
 
@@ -27,8 +32,11 @@ pub struct ThirdPartyUser {
     pub account: String,
     pub token: String,
     pub source: String,
+    #[serde(skip_serializing)]
     pub is_delete: u8,
+    #[serde(serialize_with = "datetime_util::serialize_datetime")]
     pub create_time: NaiveDateTime,
+    #[serde(serialize_with = "datetime_util::serialize_datetime")]
     pub update_time: NaiveDateTime,
 }
 
@@ -36,16 +44,23 @@ pub struct ThirdPartyUser {
 pub struct Activity {
     //表名称 Activity=> "activity"
     pub id: u32,
+    #[serde(skip_serializing)]
     pub creator_id: u32,
+    #[serde(skip_serializing)]
     pub last_editor_id: u32,
+    #[serde(serialize_with = "datetime_util::serialize_datetime")]
     pub start_time: NaiveDateTime,
+    #[serde(serialize_with = "datetime_util::serialize_datetime")]
     pub end_time: NaiveDateTime,
     pub subject: String,
     pub activity_type: String,
     pub apply_url: String,
     pub content: String,
+    #[serde(skip_serializing)]
     pub is_delete: u8,
+    #[serde(serialize_with = "datetime_util::serialize_datetime")]
     pub create_time: NaiveDateTime,
+    #[serde(serialize_with = "datetime_util::serialize_datetime")]
     pub update_time: NaiveDateTime,
 }
 
