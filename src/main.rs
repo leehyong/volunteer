@@ -4,7 +4,6 @@ use async_std;
 
 use api::api_route;
 use import::*;
-use jwt::JwtClaims;
 use setting::{init_mysql_db, CONFIG};
 use state::AppState;
 
@@ -15,7 +14,6 @@ mod setting;
 mod state;
 mod model;
 mod util;
-use base64::encode;
 
 #[async_std::main]
 async fn main() -> tide::Result<()> {

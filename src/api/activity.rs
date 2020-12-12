@@ -12,15 +12,16 @@ pub struct ActivityApi;
 
 impl ActivityApi {
     pub async fn list(req: Request<AppState>) -> TideResult {
-        let req = req.query::<ActivityReq>()?;
-        match req.validate() {
-            Ok(_) => {
-                ResponseUtil::ok(Self::select(&req).await)
-            }
-            Err(e) => {
+        req.query::<ActivityReq>()
+            .map_or_else(|e| {
                 ResponseUtil::error(e.to_string())
-            }
-        }
+            }, |v| {
+                v.validate().map_or_else(|e| {
+                    ResponseUtil::error(e)
+                }, |_| block_on(async move {
+                    ResponseUtil::ok(Self::select(&v).await)
+                }))
+            })
     }
 
     async fn select(req: &ActivityReq) -> Vec<Activity> {
@@ -37,24 +38,18 @@ impl ActivityApi {
         if req.subject.is_some() {
             query.eq("subject", req.subject.as_ref().unwrap().as_str());
         }
-        match query.push_sql(LIMIT_NUM_SQL).check() {
-            Ok(w) => {
-                let r: DbResult<Vec<Activity>> = DB.list_by_wrapper("", &w).await;
-                match r {
-                    Ok(d) => {
-                        return d;
-                    }
-                    Err(e) => {
-                        error!("{}", e.to_string());
-                        return vec![];
-                    }
-                }
-            }
-            Err(e) => {
-                error!("{}", e.to_string());
-                return vec![];
-            }
-        }
+        query
+            .push_sql(LIMIT_NUM_SQL)
+            .check()
+            .map_or_else(|e| {
+                Vec::new()
+            }, |w| block_on(async move {
+                DB.list_by_wrapper::<Activity>("", &w)
+                    .await
+                    .map_or_else(|e| {
+                        Vec::new()
+                    }, |v| v)
+            }))
     }
 
     async fn info(id: u32) -> Option<Activity> {
@@ -62,41 +57,33 @@ impl ActivityApi {
         query
             .eq("id", id)
             .eq("is_delete", 0);
-        match query.check() {
-            Ok(w) => {
-                let r: DbResult<Activity> = DB.fetch_by_wrapper("", &w).await;
-                match r {
-                    Ok(d) => {
-                        return Some(d);
-                    }
-                    Err(e) => {
-                        error!("{}", e.to_string());
-                        return None;
-                    }
-                }
-            }
-            Err(e) => {
-                error!("{}", e.to_string());
-                return None;
-            }
-        }
+        query.check().map_or_else(|e| {
+            None
+        }, |w| block_on(async move {
+            DB.fetch_by_wrapper::<Activity>("", &w)
+                .await
+                .map_or_else(|e| {
+                    None
+                }, |v| Some(v))
+        }),
+        )
     }
 
     pub async fn detail(req: Request<AppState>) -> TideResult {
-        let id_req = req.param("id")?;
-        match id_req.parse::<u32>() {
-            Ok(n) => {
-                ResponseUtil::ok(Self::info(n).await)
-            }
-            Err(e) => {
-                let s = format!("{}: {}", e.to_string(), id_req);
-                error!("{}", &s);
-                ResponseUtil::error(s)
-            }
-        }
+        req.param("id")
+            .map_or_else(|e| ResponseUtil::error(e.to_string()),
+                         |param| {
+                             param.parse::<u32>()
+                                 .map_or_else(
+                                     |e| ResponseUtil::error(e.to_string()),
+                                     |n| block_on(async move {
+                                         ResponseUtil::ok(Self::info(n).await)
+                                     }))
+                         }
+            )
     }
 
-    pub async fn new(mut req: Request<AppState>) -> TideResult {
+    pub async fn new(req: Request<AppState>) -> TideResult {
         Ok("new".into())
     }
 }

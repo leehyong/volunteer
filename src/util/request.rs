@@ -3,7 +3,7 @@ use validator::Validate;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    static ref ACTIVITY_TYPES: Regex = Regex::new(r"(^gym$)|^(meeting)$|^(concert)$|^(live)$|^(game)$|^(dance)$").unwrap();
+    static ref ACTIVITY_TYPES: Regex = Regex::new(r"(^gym$)|^(meeting)$|^(concert)$|^(live)$|^(game)$|^(dance)$|^(kongfu)$").unwrap();
     static ref DATETIME_FMT_REG: Regex = Regex::new(r"\d{4}-?\d{2}-?\d{2}\s?(\d{2}:?\d{2}:\d{2})?").unwrap();
 }
 
