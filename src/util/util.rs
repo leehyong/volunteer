@@ -6,11 +6,11 @@ pub mod datetime_util {
     };
 
     // 其它时区的时间，需要转为tc，再转为北京时间
-    pub fn utc2beijing(ut: UTCDatetime) -> SysDatetime {
+    pub fn utc2sys(ut: UTCDatetime) -> SysDatetime {
         SysDatetime::from_utc(ut.naive_local(), BeijingTimezone)
     }
 
-    pub fn naive2beijing(nt: NaiveDateTime) -> SysDatetime {
+    pub fn naive2sys(nt: NaiveDateTime) -> SysDatetime {
         SysDatetime::from_utc(nt, BeijingTimezone)
     }
 
@@ -38,13 +38,21 @@ pub mod datetime_util {
     }
 
     pub fn now2datestr() -> String {
-        datetime2str(&utc2beijing(Utc::now()), Some(DATE_FMT))
+        datetime2str(&utc2sys(Utc::now()), Some(DATE_FMT))
     }
 
     pub fn serialize_datetime<S>(dt: &NaiveDateTime, serializer: S)
                                  -> Result<<S as Serializer>::Ok, <S as Serializer>::Error>
         where S: Serializer {
-        serializer.serialize_str(datetime2str(&naive2beijing(dt.clone()), None).as_str())
+        serializer.serialize_str(datetime2str(&naive2sys(dt.clone()), None).as_str())
+    }
+
+    pub fn max_naive_datetime() -> NaiveDateTime {
+        NaiveDateTime::parse_from_str("9999-01-01 00:00:00", DATETIME_FMT).unwrap()
+    }
+
+    pub fn max_naive_date() -> NaiveDate {
+        NaiveDate::parse_from_str("9999-01-01", DATE_FMT).unwrap()
     }
 }
 

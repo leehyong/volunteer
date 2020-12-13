@@ -20,10 +20,8 @@ fn api_auth_route(app: &mut Server<AppState>) {
         .with(jwt_auth_middleware)
         .nest(
             {
-                let mut api = tide::with_state(app_state);
-                api.at("apply/*")
-                    .post(|_| async { Ok("Hello, world!") });
-                api
+                let mut _api = tide::with_state(app_state);
+                _api
             }
         );
 }
@@ -57,7 +55,9 @@ fn admin_auth_route(app: &mut Server<AppState>) {
                 .get(|_| async { Ok("all users") });
             admin
                 .at("activity")
-                .post(ActivityApi::new);
+                .post(ActivityApi::post)
+                .at(":id")
+                .put(ActivityApi::put);
             admin
         });
     // 自动在路径前面加上 '/'

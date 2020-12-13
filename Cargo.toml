@@ -33,5 +33,5 @@ envmnt = {version="0.8.4"}
 
 # rbatis, must maintain the same versions (required)
 rbatis = { version = "1.8",default-features=false, features=["async-io", "async-io-mysql"] }
-rbatis-macro-driver = { version = "1.8", features=["no_print"]}
+rbatis-macro-driver = { version = "1.8",default-features=false,features=["no_print"]}
 validator = { version = "0.12", features = ["derive"] }
