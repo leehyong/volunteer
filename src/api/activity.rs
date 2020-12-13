@@ -1,12 +1,13 @@
 use crate::import::*;
 use crate::AppState;
-use crate::model::Activity;
+use crate::model::{Activity, User};
 use crate::util::ResponseUtil;
 use crate::util::datetime_util;
 use crate::util::{ActivityReq, NewActivityReq, UpdateActivityReq};
 use validator::Validate;
 use rbatis::crud::CRUD;
 use rbatis::core::value::DateTimeNow;
+use async_std::sync::Arc;
 
 
 pub struct ActivityApi;
@@ -83,13 +84,15 @@ impl ActivityApi {
             })
     }
 
-    pub async fn post(mut req: Request<AppState>) -> TideResult {
-        req.body_json::<NewActivityReq>().await
+    pub async fn post(mut ctx: Request<AppState>) -> TideResult {
+        let user = ctx.ext::<Arc<User>>(); // todo ，获取真正的用户id
+        let creator_id = user.unwrap().id;
+
+        ctx.body_json::<NewActivityReq>().await
             .map_or_else(|e| ResponseUtil::error(e.to_string()), |req|
                 block_on(async move {
                     match DB.begin_tx().await {
                         Ok(txt_id) => {
-                            let creator_id = 1u32; // todo ，获取真正的用户id
                             let sql = r#"
                                     insert into activity(
                                       creator_id, last_editor_id, subject, activity_type,

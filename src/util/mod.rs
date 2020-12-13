@@ -1,12 +1,10 @@
 mod response;
 mod request;
-mod util;
+pub mod util;
+pub mod datetime_util;
 
 pub use response::ResponseUtil;
-
 pub use request::*;
-pub use util::*;
-pub use util::datetime_util;
 
 use crate::import::Deserialize;
 use crate::import::Validate;

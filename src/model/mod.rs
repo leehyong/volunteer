@@ -1,5 +1,7 @@
 use crate::import::*;
 use crate::util::datetime_util;
+use rbatis::crud::CRUD;
+use rbatis::core::Result as DbResult;
 
 #[derive(CRUDEnable, Serialize, Deserialize, Clone, Debug)]
 pub struct User {
@@ -21,6 +23,12 @@ pub struct User {
     pub create_time: NaiveDateTime,
     #[serde(serialize_with = "datetime_util::serialize_datetime")]
     pub update_time: NaiveDateTime,
+}
+
+impl User {
+    pub async fn info(user_id:u32) -> DbResult<User>{
+        DB.fetch_by_id("", &user_id).await
+    }
 }
 
 #[derive(CRUDEnable, Serialize, Deserialize, Clone, Debug)]

@@ -5,14 +5,17 @@ use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, 
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use tide::Middleware;
+use async_std::sync::Arc;
 
 use crate::import::*;
+use crate::util::datetime_util;
 use crate::setting::CONFIG;
 use crate::state::AppState;
+use crate::model::User;
 
 #[derive(Debug, Serialize, Deserialize, PartialOrd, PartialEq, Ord, Eq, Default)]
 pub struct JwtClaims {
-    user_id: u64,
+    user_id: u32,
     exp: i64,
     // Required (validate_exp defaults to true in validation). Expiration time (as UTC timestamp)
     iat: i64,
@@ -35,12 +38,12 @@ lazy_static! {
 }
 
 impl JwtClaims {
-    pub fn new(user_id: u64) -> Self {
+    pub fn new(user_id: u32) -> Self {
         Self::new1(user_id, CONFIG.jwt_expiration as i64)
     }
 
-    pub fn new1(user_id: u64, days: i64) -> Self {
-        let now_ts = Utc::now().timestamp();
+    pub fn new1(user_id: u32, days: i64) -> Self {
+        let now_ts = datetime_util::current_timestamp();
         let valid_time = days * 86400 as i64;
         Self {
             user_id,
@@ -63,7 +66,7 @@ impl JwtClaims {
                 self,
                 &EncodingKey::from_secret(secret),
             )
-            .unwrap(),
+                .unwrap(),
         )
     }
 
@@ -83,36 +86,57 @@ impl JwtClaims {
     }
 }
 
-pub fn jwt_auth_middleware<'a, State>(
-    mut ctx: Request<State>,
-    next: Next<'a, State>,
-) -> Pin<Box<dyn Future<Output = TideResult> + Send + 'a>>
-where
-    State: Clone + Send + Sync + 'static,
+// user_id对应的User在AppState的Users里的的过期时间, 30秒
+const USER_TIMEOUT: i64 = 30;
+
+pub fn jwt_auth_middleware<'a, >(
+    mut ctx: Request<AppState>,
+    next: Next<'a, AppState>,
+) -> Pin<Box<dyn Future<Output=TideResult> + Send + 'a>>
 {
     Box::pin(async move {
         let r = ctx
             .header("token")
             .map(|val| val.as_str())
             .map(|token| JwtClaims::retrive_self(token))
-            .map(|claim| match claim {
-                Ok(c) => {
-                    ctx.set_ext(c);
-                    Some(())
+            .map_or_else(|| {
+                error!("take token:{}", ctx.header("token").map(|v| v.as_str()).unwrap_or(""), );
+                None
+            }, |c| c.map_or_else(|e| {
+                error!("parse token:{} {}",
+                       ctx.header("token").map(|v| v.as_str()).unwrap_or(""),
+                       e.to_string());
+                None
+            }, |c| Some(c)));
+        if let Some(c) = r {
+            let now = datetime_util::current_timestamp();
+            let state = ctx.state().clone();
+            let user_id = c.user_id;
+            if let Some((time, user)) = state.user(user_id).await {
+                let mut tmp_user = user;
+                if time + USER_TIMEOUT < now {
+                    // 超过缓存有效期，则重写
+                    match User::info(user_id).await {
+                        Ok(u) => {
+                            tmp_user = Arc::new(u);
+                            state.set_user((now, tmp_user.clone())).await
+                        }
+                        Err(e) => {
+                            error!("info user:{} {}", user_id, e.to_string());
+                            return Ok(http::Response::new(http::StatusCode::Unauthorized).into());
+                        }
+                    }
                 }
-                Err(e) => {
-                    error!(
-                        "token:{} {}",
-                        ctx.header("token").map(|v| v.as_str()).unwrap_or(""),
-                        e.to_string()
-                    );
-                    None
+                // 把用户存到 每个request 对象的本地状态里
+                if ctx.set_ext(tmp_user).is_none() {
+                    error!("set_ext user:{}", user_id);
+                    return Ok(http::Response::new(http::StatusCode::Unauthorized).into());
                 }
-            });
-        if r.unwrap().is_some() {
-            let response = next.run(ctx).await;
-            return Ok(response);
+                let response = next.run(ctx).await;
+                return Ok(response);
+            }
         }
+        // 其他情况一律视为未登陆状态
         Ok(http::Response::new(http::StatusCode::Unauthorized).into())
     })
 }
