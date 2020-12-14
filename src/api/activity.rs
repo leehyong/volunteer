@@ -3,12 +3,9 @@ use crate::AppState;
 use crate::model::{Activity, User};
 use crate::util::ResponseUtil;
 use crate::util::datetime_util;
-use crate::util::{ActivityReq, NewActivityReq, UpdateActivityReq};
-use validator::Validate;
-use rbatis::crud::CRUD;
-use rbatis::core::value::DateTimeNow;
+use crate::req::{ActivityReq, NewActivityReq, UpdateActivityReq};
 use async_std::sync::Arc;
-
+use rbatis::crud::CRUD;
 
 pub struct ActivityApi;
 

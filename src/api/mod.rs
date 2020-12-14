@@ -1,4 +1,5 @@
 mod activity;
+mod user;
 
 use crate::api::activity::ActivityApi;
 use crate::import::*;
