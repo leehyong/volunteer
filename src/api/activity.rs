@@ -87,17 +87,19 @@ impl ActivityApi {
 
         ctx.body_json::<NewActivityReq>().await
             .map_or_else(|e| ResponseUtil::error(e.to_string()), |req|
-                block_on(async move {
-                    match DB.begin_tx().await {
-                        Ok(txt_id) => {
-                            let sql = r#"
+                {
+                    match req.validate() {
+                        Ok(_) => block_on(async move {
+                            match DB.begin_tx().await {
+                                Ok(txt_id) => {
+                                    let sql = r#"
                                     insert into activity(
                                       creator_id, last_editor_id, subject, activity_type,
                                       apply_url, content, start_time, end_time) values (
                                       #{creator_id},#{last_editor_id},#{subject},#{activity_type},
                                       #{apply_url},#{creator_id},#{start_time}, #{end_time}
                                       );"#;
-                            match DB.py_exec(&txt_id, sql, &json!({
+                                    match DB.py_exec(&txt_id, sql, &json!({
                                     "creator_id":creator_id,
                                     "last_editor_id":creator_id,
                                     "start_time":req.start_time,
@@ -107,9 +109,15 @@ impl ActivityApi {
                                     "activity_type":req.activity_type,
                                     "content":req.content,
                                 })).await {
-                                Ok(result) => {
-                                    match DB.commit(&txt_id).await {
-                                        Ok(_) => ResponseUtil::ok(result),
+                                        Ok(result) => {
+                                            match DB.commit(&txt_id).await {
+                                                Ok(_) => ResponseUtil::ok(result),
+                                                Err(e) => {
+                                                    DB.rollback(&txt_id).await?;
+                                                    ResponseUtil::error(e.to_string())
+                                                }
+                                            }
+                                        }
                                         Err(e) => {
                                             DB.rollback(&txt_id).await?;
                                             ResponseUtil::error(e.to_string())
@@ -117,65 +125,70 @@ impl ActivityApi {
                                     }
                                 }
                                 Err(e) => {
-                                    DB.rollback(&txt_id).await?;
                                     ResponseUtil::error(e.to_string())
                                 }
                             }
-                        }
-                        Err(e) => {
-                            ResponseUtil::error(e.to_string())
-                        }
+                        }),
+                        Err(e) => ResponseUtil::error(json!(e))
                     }
-                }),
+                },
             )
     }
 
     pub async fn put(mut req: Request<AppState>) -> TideResult {
         req.body_json::<UpdateActivityReq>().await
             .map_or_else(|e| ResponseUtil::error(e.to_string()), |req|
-                block_on(async move {
-                    let mut query = DB.new_wrapper();
-                    query.eq("id", req.id)
-                        .eq("is_delete", 0);
-                    let mut update = false;
-                    let mut sets = Vec::with_capacity(16);
-                    if req.end_time.is_some() {
-                        update = true;
-                        sets.push(format!("end_time = '{}'", req.end_time.unwrap()));
-                    }
-                    if req.start_time.is_some() {
-                        update = true;
-                        sets.push(format!("start_time = '{}'", req.start_time.unwrap()));
-                    }
-                    if req.activity_type.is_some() {
-                        update = true;
-                        sets.push(format!("activity_type = '{}'", req.activity_type.unwrap()));
-                    }
-                    if req.subject.is_some() {
-                        update = true;
-                        sets.push(format!("subject = '{}'", req.subject.unwrap()));
-                    }
-                    if req.apply_url.is_some() {
-                        update = true;
-                        sets.push(format!("apply_url = '{}'", req.apply_url.unwrap()));
-                    }
-                    if req.content.is_some() {
-                        update = true;
-                        sets.push(format!("content = '{}'", req.content.unwrap()));
-                    }
-                    if !update {
-                        return ResponseUtil::ok(());
-                    }
-                    let creator_id = 1u32; // todo ，获取真正的用户id
-                    sets.push(format!("last_editor_id ={}", creator_id));
-                    let sql = format!("update activity set {} where id={} and is_delete=0", sets.join(","), req.id);
-                    match DB.begin_tx().await {
-                        Ok(txt_id) => {
-                            match DB.exec(&txt_id, &sql).await {
-                                Ok(result) => {
-                                    match DB.commit(&txt_id).await {
-                                        Ok(d) => {
-                                            ResponseUtil::ok(json!({"id":req.id}))
+                match req.validate() {
+                    Ok(_) =>
+                        block_on(async move {
+                            let mut query = DB.new_wrapper();
+                            query.eq("id", req.id)
+                                .eq("is_delete", 0);
+                            let mut update = false;
+                            let mut sets = Vec::with_capacity(16);
+                            if req.end_time.is_some() {
+                                update = true;
+                                sets.push(format!("end_time = '{}'", req.end_time.unwrap()));
+                            }
+                            if req.start_time.is_some() {
+                                update = true;
+                                sets.push(format!("start_time = '{}'", req.start_time.unwrap()));
+                            }
+                            if req.activity_type.is_some() {
+                                update = true;
+                                sets.push(format!("activity_type = '{}'", req.activity_type.unwrap()));
+                            }
+                            if req.subject.is_some() {
+                                update = true;
+                                sets.push(format!("subject = '{}'", req.subject.unwrap()));
+                            }
+                            if req.apply_url.is_some() {
+                                update = true;
+                                sets.push(format!("apply_url = '{}'", req.apply_url.unwrap()));
+                            }
+                            if req.content.is_some() {
+                                update = true;
+                                sets.push(format!("content = '{}'", req.content.unwrap()));
+                            }
+                            if !update {
+                                return ResponseUtil::ok(());
+                            }
+                            let creator_id = 1u32; // todo ，获取真正的用户id
+                            sets.push(format!("last_editor_id ={}", creator_id));
+                            let sql = format!("update activity set {} where id={} and is_delete=0", sets.join(","), req.id);
+                            match DB.begin_tx().await {
+                                Ok(txt_id) => {
+                                    match DB.exec(&txt_id, &sql).await {
+                                        Ok(result) => {
+                                            match DB.commit(&txt_id).await {
+                                                Ok(d) => {
+                                                    ResponseUtil::ok(json!({"id":req.id}))
+                                                }
+                                                Err(e) => {
+                                                    DB.rollback(&txt_id).await?;
+                                                    ResponseUtil::error(e.to_string())
+                                                }
+                                            }
                                         }
                                         Err(e) => {
                                             DB.rollback(&txt_id).await?;
@@ -183,15 +196,12 @@ impl ActivityApi {
                                         }
                                     }
                                 }
-                                Err(e) => {
-                                    DB.rollback(&txt_id).await?;
-                                    ResponseUtil::error(e.to_string())
-                                }
+                                Err(e) => ResponseUtil::error(e.to_string())
                             }
-                        }
-                        Err(e) => ResponseUtil::error(e.to_string())
-                    }
-                }),
+                        }),
+                    Err(e) =>
+                        ResponseUtil::error(json!(e))
+                },
             )
     }
 }

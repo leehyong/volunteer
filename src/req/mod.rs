@@ -3,6 +3,7 @@ mod user;
 
 use crate::import::*;
 pub use activity::{UpdateActivityReq, NewActivityReq, ActivityReq};
+pub use user::UserReq;
 
 
 #[derive(Copy, Clone, Debug, Deserialize, Default, Validate)]
