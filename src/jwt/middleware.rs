@@ -128,12 +128,9 @@ pub fn jwt_auth_middleware<'a, >(
                     }
                 }
                 // 把用户存到 每个request 对象的本地状态里
-                if ctx.set_ext(tmp_user).is_none() {
-                    error!("set_ext user:{}", user_id);
-                    return Ok(http::Response::new(http::StatusCode::Unauthorized).into());
-                }
-                let response = next.run(ctx).await;
-                return Ok(response);
+                // set_ext： 对象已经存在时，会返回已存的值；否则返回None
+                ctx.set_ext(tmp_user);
+                return Ok( next.run(ctx).await);
             }
         }
         // 其他情况一律视为未登陆状态

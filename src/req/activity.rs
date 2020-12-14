@@ -49,7 +49,6 @@ pub struct NewActivityReq {
 
 #[derive(Debug, Validate, Deserialize)]
 pub struct UpdateActivityReq {
-    pub id: u32,
     pub end_time: Option<NaiveDateTime>,
     pub start_time: Option<NaiveDateTime>,
     #[validate(regex(path = "ACTIVITY_TYPES"))]

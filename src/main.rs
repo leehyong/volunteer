@@ -22,7 +22,6 @@ mod req;
 async fn main() -> tide::Result<()> {
     TideLog::with_level(TideLog::LevelFilter::Debug);
     init_mysql_db().await;
-    info!("token: {}", JwtClaims::new(3).gen_token());
     let mut app = tide::with_state(AppState::default());
     api_route(&mut app);
     app.listen(&*CONFIG.server).await?;

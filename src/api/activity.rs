@@ -135,14 +135,19 @@ impl ActivityApi {
             )
     }
 
-    pub async fn put(mut req: Request<AppState>) -> TideResult {
-        req.body_json::<UpdateActivityReq>().await
+    pub async fn put(mut ctx: Request<AppState>) -> TideResult {
+        ctx.body_json::<UpdateActivityReq>().await
             .map_or_else(|e| ResponseUtil::error(e.to_string()), |req|
                 match req.validate() {
                     Ok(_) =>
                         block_on(async move {
+                            let id_str = ctx.param("id")?;
+                            let _id = match id_str.parse::<u32>() {
+                                Ok(id) => id,
+                                Err(e) => return ResponseUtil::error(format!("{}:{}", id_str, e.to_string()))
+                            };
                             let mut query = DB.new_wrapper();
-                            query.eq("id", req.id)
+                            query.eq("id", _id)
                                 .eq("is_delete", 0);
                             let mut update = false;
                             let mut sets = Vec::with_capacity(16);
@@ -175,15 +180,13 @@ impl ActivityApi {
                             }
                             let creator_id = 1u32; // todo ，获取真正的用户id
                             sets.push(format!("last_editor_id ={}", creator_id));
-                            let sql = format!("update activity set {} where id={} and is_delete=0", sets.join(","), req.id);
+                            let sql = format!("update activity set {} where id={} and is_delete=0", sets.join(","), _id);
                             match DB.begin_tx().await {
                                 Ok(txt_id) => {
                                     match DB.exec(&txt_id, &sql).await {
                                         Ok(result) => {
                                             match DB.commit(&txt_id).await {
-                                                Ok(d) => {
-                                                    ResponseUtil::ok(json!({"id":req.id}))
-                                                }
+                                                Ok(d) => ResponseUtil::ok(json!({"id":_id})),
                                                 Err(e) => {
                                                     DB.rollback(&txt_id).await?;
                                                     ResponseUtil::error(e.to_string())

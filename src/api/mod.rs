@@ -1,8 +1,9 @@
 mod activity;
 mod user;
 
-use crate::api::activity::ActivityApi;
 use crate::import::*;
+use crate::api::activity::ActivityApi;
+use crate::api::user::UserApi;
 use crate::jwt::jwt_auth_middleware;
 use crate::state::AppState;
 use tide::{with_state, Server};
@@ -21,8 +22,8 @@ fn api_auth_route(app: &mut Server<AppState>) {
         .with(jwt_auth_middleware)
         .nest(
             {
-                let mut _api = tide::with_state(app_state);
-                _api
+                let mut api = tide::with_state(app_state);
+                api
             }
         );
 }
@@ -33,14 +34,17 @@ fn api_no_auth_route(app: &mut Server<AppState>) {
     let app_state = app.state().clone();
     app.at(API_PATH)
         .nest({
-            let mut _api = tide::with_state(app_state);
-            _api
+            let mut api = tide::with_state(app_state);
+            api
                 .at("activity")
                 .get(ActivityApi::list);
-            _api
+            api
                 .at("activity/:id")
                 .get(ActivityApi::detail);
-            _api
+            api
+                .at("login")
+                .post(UserApi::login);
+            api
         });
 }
 
@@ -61,5 +65,4 @@ fn admin_auth_route(app: &mut Server<AppState>) {
                 .put(ActivityApi::put);
             admin
         });
-    // 自动在路径前面加上 '/'
 }
