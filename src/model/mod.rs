@@ -72,6 +72,36 @@ pub struct Activity {
     pub update_time: NaiveDateTime,
 }
 
+impl Activity {
+  pub  async fn info(id: u32) -> Option<Activity> {
+        let mut query = DB.new_wrapper();
+        query
+            .eq("id", id)
+            .eq("is_delete", 0);
+        query.check().map_or_else(|e| {
+            None
+        }, |w| block_on(async move {
+            DB.fetch_by_wrapper::<Activity>("", &w)
+                .await
+                .map_or_else(|e| {
+                    None
+                }, |v| Some(v))
+        }),
+        )
+    }
+
+    pub  async fn exist(id: u32) -> bool{
+        let sql = r#"
+                SELECT id FROM activity
+                WHERE is_delete = 0
+                and id = #{id}"#;
+        // DB.py_fetch("", sql,&json!({"id":id}))
+        DB.py_fetch("", sql,&id)
+            .await
+            .unwrap_or(0) >= 1
+    }
+}
+
 #[derive(CRUDEnable, Serialize, Deserialize, Clone, Debug)]
 pub struct Apply {
     //表名称 Apply=> "apply"

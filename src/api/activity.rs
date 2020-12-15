@@ -1,11 +1,13 @@
-use crate::import::*;
-use crate::AppState;
-use crate::model::{Activity, User};
-use crate::util::ResponseUtil;
-use crate::util::datetime_util;
-use crate::req::{ActivityReq, NewActivityReq, UpdateActivityReq};
 use async_std::sync::Arc;
+use rbatis::core::db::DBExecResult;
 use rbatis::crud::CRUD;
+
+use crate::AppState;
+use crate::import::*;
+use crate::model::{Activity, User};
+use crate::req::{ActivityReq, NewActivityReq, UpdateActivityReq};
+use crate::util::datetime_util;
+use crate::util::ResponseUtil;
 
 pub struct ActivityApi;
 
@@ -52,22 +54,6 @@ impl ActivityApi {
             }))
     }
 
-    async fn info(id: u32) -> Option<Activity> {
-        let mut query = DB.new_wrapper();
-        query
-            .eq("id", id)
-            .eq("is_delete", 0);
-        query.check().map_or_else(|e| {
-            None
-        }, |w| block_on(async move {
-            DB.fetch_by_wrapper::<Activity>("", &w)
-                .await
-                .map_or_else(|e| {
-                    None
-                }, |v| Some(v))
-        }),
-        )
-    }
 
     pub async fn detail(req: Request<AppState>) -> TideResult {
         req.param("id")
@@ -76,7 +62,7 @@ impl ActivityApi {
                     .map_or_else(
                         |e| ResponseUtil::error(e.to_string()),
                         |n| block_on(async move {
-                            ResponseUtil::ok(Self::info(n).await)
+                            ResponseUtil::ok(Activity::info(n).await)
                         }))
             })
     }
@@ -206,5 +192,59 @@ impl ActivityApi {
                         ResponseUtil::error(json!(e))
                 },
             )
+    }
+}
+
+pub struct ApplyApi;
+
+
+impl ApplyApi {
+    pub async fn delete(mut ctx: Request<AppState>) -> TideResult {
+        Self::handle(ctx, true).await
+    }
+    pub async fn post(mut ctx: Request<AppState>) -> TideResult {
+        Self::handle(ctx, false).await
+    }
+
+    async fn handle(mut ctx: Request<AppState>, is_cancel: bool) -> TideResult {
+        let user = ctx.ext::<Arc<User>>();
+        let user_id = user.unwrap().id;
+        let activity_id;
+        match ctx.param("activity_id")?.parse::<u32>() {
+            Ok(aid) => {
+                activity_id = aid;
+            }
+            Err(e) => return ResponseUtil::error(format!("{}:", e.to_string()))
+        }
+        return if Activity::exist(activity_id).await {
+            match Self::apply_or_cancel(user_id, activity_id, is_cancel).await {
+                Ok(d) => return ResponseUtil::ok(d),
+                Err(e) => return ResponseUtil::error(e.to_string())
+            }
+        } else {
+            return ResponseUtil::error(format!("活动不存在{}", activity_id));
+        };
+    }
+
+
+    async fn apply_or_cancel(user_id: u32, activity_id: u32, is_cancel: bool) -> DbResult<DBExecResult> {
+        if is_cancel {
+            let mut query = DB.new_wrapper();
+            query.push_sql("update apply set is_delete = 1 ");
+            query
+                .eq("user_id", user_id)
+                .eq("activity_id", activity_id)
+                .eq("is_delete", 0);
+            query.check().unwrap();
+            info!("{}", &query.sql);
+            DB.exec("", &query.sql).await
+        } else {
+            let sql = r#"
+                insert into apply(user_id, activity_id, 0)
+                values( #{user_id}, #{activity_id})"#;
+            DB.py_exec("", sql, &json!({
+                "user_id":user_id, "activity_id":activity_id}))
+                .await
+        }
     }
 }

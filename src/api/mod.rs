@@ -2,7 +2,7 @@ mod activity;
 mod user;
 
 use crate::import::*;
-use crate::api::activity::ActivityApi;
+use crate::api::activity::{ActivityApi, ApplyApi};
 use crate::api::user::UserApi;
 use crate::jwt::jwt_auth_middleware;
 use crate::state::AppState;
@@ -23,6 +23,9 @@ fn api_auth_route(app: &mut Server<AppState>) {
         .nest(
             {
                 let mut api = tide::with_state(app_state);
+                api.at("apply/:activity_id")
+                    .post(ApplyApi::post)
+                    .delete(ApplyApi::delete);
                 api
             }
         );
