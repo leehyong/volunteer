@@ -28,6 +28,9 @@ fn api_auth_route(app: &mut Server<AppState>) {
                     .post(ApplyApi::post)
                     .delete(ApplyApi::delete);
                 api
+                .at("logout")
+                .post(UserApi::logout);
+                api
             }
         );
 }
