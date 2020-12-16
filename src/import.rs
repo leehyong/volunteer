@@ -37,4 +37,7 @@ pub use crate::beijing::{SysDatetime, SysDate, BeijingTimezone};
 pub type UTCDatetime = DateTime<Utc>;
 pub type UTCDate = Date<Utc>;
 pub const DATETIME_FMT: &'static str = "%Y-%m-%d %H:%M:%S";
+pub const DATETIME_FMT2: &'static str = "%Y-%m-%dT%H:%M:%S";
 pub const DATE_FMT: &'static str = "%Y-%m-%d";
+pub const DUPLICATE_ENTRY: &'static str = "Duplicate entry";
+

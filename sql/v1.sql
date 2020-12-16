@@ -66,6 +66,8 @@ CREATE TABLE if not exists  `apply` (
   CONSTRAINT `apply_fk2` FOREIGN KEY (`activity_id`) REFERENCES `activity` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4 comment='志愿者报名表';
 
+alter table apply add UNIQUE `ux_user_activity_id`(`user_id`, `activity_id`);
+drop index `apply_fk1` on apply;
 
 -- test data
 

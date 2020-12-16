@@ -2,6 +2,7 @@ use crate::import::*;
 use crate::util::datetime_util;
 use rbatis::crud::CRUD;
 use rbatis::core::Result as DbResult;
+use crate::util::datetime_util::naive2sys;
 
 #[derive(CRUDEnable, Serialize, Deserialize, Clone, Debug)]
 pub struct User {
@@ -26,7 +27,7 @@ pub struct User {
 }
 
 impl User {
-    pub async fn info(user_id:u32) -> DbResult<User>{
+    pub async fn info(user_id: u32) -> DbResult<User> {
         DB.fetch_by_id("", &user_id).await
     }
 }
@@ -73,7 +74,7 @@ pub struct Activity {
 }
 
 impl Activity {
-  pub  async fn info(id: u32) -> Option<Activity> {
+    pub async fn info(id: u32) -> Option<Activity> {
         let mut query = DB.new_wrapper();
         query
             .eq("id", id)
@@ -89,17 +90,6 @@ impl Activity {
         }),
         )
     }
-
-    pub  async fn exist(id: u32) -> bool{
-        let sql = r#"
-                SELECT id FROM activity
-                WHERE is_delete = 0
-                and id = #{id}"#;
-        // DB.py_fetch("", sql,&json!({"id":id}))
-        DB.py_fetch("", sql,&id)
-            .await
-            .unwrap_or(0) >= 1
-    }
 }
 
 #[derive(CRUDEnable, Serialize, Deserialize, Clone, Debug)]
@@ -112,5 +102,4 @@ pub struct Apply {
     pub create_time: NaiveDateTime,
     pub update_time: NaiveDateTime,
 }
-
 

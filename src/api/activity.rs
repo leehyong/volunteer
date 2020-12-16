@@ -6,7 +6,7 @@ use crate::AppState;
 use crate::import::*;
 use crate::model::{Activity, User};
 use crate::req::{ActivityReq, NewActivityReq, UpdateActivityReq};
-use crate::util::datetime_util;
+use crate::util::datetime_util::*;
 use crate::util::ResponseUtil;
 
 pub struct ActivityApi;
@@ -89,7 +89,7 @@ impl ActivityApi {
                                     "creator_id":creator_id,
                                     "last_editor_id":creator_id,
                                     "start_time":req.start_time,
-                                    "end_time":req.end_time.unwrap_or(datetime_util::max_naive_datetime()),
+                                    "end_time":req.end_time.unwrap_or(max_naive_datetime()),
                                     "subject":req.subject,
                                     "apply_url":req.apply_url,
                                     "activity_type":req.activity_type,
@@ -200,9 +200,11 @@ pub struct ApplyApi;
 
 impl ApplyApi {
     pub async fn delete(mut ctx: Request<AppState>) -> TideResult {
+        // 取消活动申请
         Self::handle(ctx, true).await
     }
     pub async fn post(mut ctx: Request<AppState>) -> TideResult {
+        // 申请活动报名
         Self::handle(ctx, false).await
     }
 
@@ -216,35 +218,40 @@ impl ApplyApi {
             }
             Err(e) => return ResponseUtil::error(format!("{}:", e.to_string()))
         }
-        return if Activity::exist(activity_id).await {
+        return if let Some(act) = Activity::info(activity_id).await {
+            let now = current_timestamp();
+            if naive2timestamp(act.end_time) < now {
+                return ResponseUtil::error(format!("{}:活动已经过期", activity_id));
+            }
             match Self::apply_or_cancel(user_id, activity_id, is_cancel).await {
                 Ok(d) => return ResponseUtil::ok(d),
-                Err(e) => return ResponseUtil::error(e.to_string())
+                Err(e) => {
+                    let e = e.to_string();
+                    if e.contains(DUPLICATE_ENTRY) {
+                        return ResponseUtil::ok(DBExecResult { rows_affected: 0, last_insert_id: None });
+                    }
+                    return ResponseUtil::error(e);
+                }
             }
         } else {
-            return ResponseUtil::error(format!("活动不存在{}", activity_id));
+            return ResponseUtil::error(format!("活动不存在:{}", activity_id));
         };
     }
 
 
     async fn apply_or_cancel(user_id: u32, activity_id: u32, is_cancel: bool) -> DbResult<DBExecResult> {
+        let sql;
+        let v = json!({"user_id":user_id, "activity_id":activity_id});
         if is_cancel {
-            let mut query = DB.new_wrapper();
-            query.push_sql("update apply set is_delete = 1 ");
-            query
-                .eq("user_id", user_id)
-                .eq("activity_id", activity_id)
-                .eq("is_delete", 0);
-            query.check().unwrap();
-            info!("{}", &query.sql);
-            DB.exec("", &query.sql).await
+            sql = r#"update apply set is_delete = 1
+            where is_delete=0 and user_id=#{user_id} and activity_id=#{activity_id}"#;
         } else {
-            let sql = r#"
-                insert into apply(user_id, activity_id, 0)
-                values( #{user_id}, #{activity_id})"#;
-            DB.py_exec("", sql, &json!({
-                "user_id":user_id, "activity_id":activity_id}))
-                .await
+            sql = r#"
+                insert into apply(user_id, activity_id)
+                values( #{user_id}, #{activity_id})
+                ON DUPLICATE KEY UPDATE is_delete=0"#;
         }
+        DB.py_exec("", sql, &v)
+            .await
     }
 }

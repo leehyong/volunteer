@@ -19,6 +19,7 @@ fn api_auth_route(app: &mut Server<AppState>) {
     // 这里加入需要鉴权和认证的的URL
     app.at(API_PATH)
         // 自动在路径前面加上 '/'
+        .at("au")
         .with(jwt_auth_middleware)
         .nest(
             {

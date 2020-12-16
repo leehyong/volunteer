@@ -30,6 +30,12 @@ pub fn to_timestamp<Tz: TimeZone>(dt: DateTime<Tz>) -> i64 {
     dt.timestamp()
 }
 
+pub fn naive2timestamp(dt: NaiveDateTime) -> i64 {
+    naive2sys(dt).timestamp()
+}
+
+
+
 pub fn date2str(dt: &SysDate) -> String {
     // "%Y-%m-%d"
     datetime2str(&date2datetime(dt), Some(DATE_FMT))
