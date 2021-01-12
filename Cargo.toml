@@ -10,8 +10,8 @@ edition = "2018"
 dotenv = "0.15.0"
 envy = "0.4.1"
 regex = "1.4"
-#tide = "0.15.0"
-tide = { path = "../tide",  version = "0.15.0"}
+#tide = "0.15.0", there is a bug in its dependencies, so we assign a special commit 
+tide = {git = "https://github.com/http-rs/tide.git", rev="46bf28a13b"}
 async-std = { version = "1.6.0", features = ["attributes"] }
 async-trait = "0.1"
 serde = "1.0"

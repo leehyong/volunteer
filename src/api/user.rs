@@ -42,7 +42,7 @@ impl UserApi {
     pub async fn logout(mut ctx: Request<AppState>) -> TideResult {
         let user = ctx.ext::<Arc<User>>();
         let user_id = user.unwrap().id;
-        ctx.state().remove_user(user_id).await?;
+        ctx.state().remove_user(user_id).await;
         ResponseUtil::ok(json!({"status":"success"}))
     }
 }

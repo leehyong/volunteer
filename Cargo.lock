@@ -2082,6 +2082,7 @@ dependencies = [
 [[package]]
 name = "tide"
 version = "0.15.0"
+source = "git+https://github.com/http-rs/tide.git?rev=46bf28a13b#46bf28a13be9951e7a61f647f98d5232106d61fb"
 dependencies = [
  "async-h1",
  "async-session",
